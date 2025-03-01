@@ -1,0 +1,40 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-server
+
+    cloud:
+      gateway:
+        discovery:
+          locator:
+            enabled: true
+            lower-case-service-id: true
+            strip-prefix: true
+        routes:
+          - id: microservice-user
+            uri: lb://microservice-user
+            predicates:
+              - Path=/users/**
+              - Path=/reservations/**
+          - id: microservice-hotel
+            uri: lb://microservice-hotel
+            predicates:
+              - Path=/hotels/**
+              - Path=/rooms/**
+          - id: microservice-opinions
+            uri: lb://microservice-opinions
+            predicates:
+              - Path=/opinions/**
+  config:
+    import: optional:configserver:http://localhost:8081
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+      register-with-eureka: true
+      fetch-registry: true
