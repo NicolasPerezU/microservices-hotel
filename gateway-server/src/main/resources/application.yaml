@@ -16,13 +16,11 @@ spring:
           - id: microservice-user
             uri: lb://microservice-user
             predicates:
-              - Path=/users/**
-              - Path=/reservations/**
+              - Path=/users/**, /reservations/**
           - id: microservice-hotel
             uri: lb://microservice-hotel
             predicates:
-              - Path=/hotels/**
-              - Path=/rooms/**
+              - Path=/hotels/**, /rooms/**
           - id: microservice-opinions
             uri: lb://microservice-opinions
             predicates:
