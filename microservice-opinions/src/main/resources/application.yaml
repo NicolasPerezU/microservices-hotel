@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: microservice-opinions
+  config:
+    import: "optional:configserver:http://localhost:8081"
+  datasource:
+    url: jdbc:mysql://localhost:3306/ms-opinion
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
