@@ -2,7 +2,7 @@ spring:
   application:
     name: microservice-user
   config:
-    import: "optional:configserver:http://localhost:8081"  //puerto del servidor de configuración (revisar en el microservicio de configuración)
+    import: "optional:configserver:http://localhost:8081"
   datasource:
     url: jdbc:mysql://localhost:3306/user
     username: root
