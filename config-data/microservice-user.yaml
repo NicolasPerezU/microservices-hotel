@@ -21,6 +21,8 @@ resilience4j.circuitbreaker:
             waitDurationInOpenState: 5s
             failureRateThreshold: 50
             eventConsumerBufferSize: 10
-            ignoreExceptions:
-                - feign.FeignException$NotFound  # Ignora errores 404
+            recordExceptions: # Especifica qué excepciones activan el Circuit Breaker
+                - feign.RetryableException
+                - java.io.IOException
+                - java.net.ConnectException
         

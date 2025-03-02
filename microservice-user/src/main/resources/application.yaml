@@ -13,3 +13,11 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+
+feign:
+  client:
+    config:
+      default:  # Aplica a todos los clientes Feign
+        connectTimeout: 2000    # Tiempo máximo para establecer conexión (2 segundos)
+        readTimeout: 2000       # Tiempo máximo de espera de respuesta (2 segundos)
+        loggerLevel: basic      # Nivel de logging (muestra método HTTP, URL y código de respuesta)
