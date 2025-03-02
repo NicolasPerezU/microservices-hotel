@@ -188,8 +188,9 @@ public class ReservationServiceIMPL implements ReservationService {
 
     public HotelResponse fallbackHotelById(Long hotelId, Throwable ex) {
         logger.error("Error al obtener hotel con ID {}: {}", hotelId, ex.getMessage());
-        return new HotelResponse(hotelId, "Hotel no disponible", "Ciudad no disponible", null);
+        return new HotelResponse(-1L, "Service Unavailable", "Service Unavailable", null);
     }
+
 
     @CircuitBreaker(name = "microservice-hotel", fallbackMethod = "fallbackRoomById")
     public RoomResponse getRoomByIdWithCircuitBreaker(Long roomId) {
@@ -198,19 +199,23 @@ public class ReservationServiceIMPL implements ReservationService {
 
     public RoomResponse fallbackRoomById(Long roomId, Throwable ex) {
         logger.error("Error al obtener habitación con ID {}: {}", roomId, ex.getMessage());
-        return new RoomResponse(roomId, "Habitación no disponible", 0.0, 0L, "Hotel no disponible", "Ciudad no disponible");
+        return new RoomResponse(-1L, "Service Unavailable", 0.0, -1L, "Service Unavailable", "Service Unavailable");
     }
-    //valida si el hotel existe, si no existe retorna un mensaje de error
+
     private static ResponseEntity<String> hotelExist(HotelResponse hotelResponse) {
-        if (hotelResponse == null){
+        if (hotelResponse == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Hotel not found");
+        } else if (hotelResponse.getId() == -1L) {  // Circuit Breaker activado
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Hotel service unavailable");
         }
         return null;
     }
-    //valida si la habitación existe, si no existe retorna un mensaje de error
+
     private static ResponseEntity<String> roomExist(RoomResponse roomResponse) {
-        if (roomResponse == null){
+        if (roomResponse == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Room not found");
+        } else if (roomResponse.getId() == -1L) {  // Circuit Breaker activado
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Room service unavailable");
         }
         return null;
     }
