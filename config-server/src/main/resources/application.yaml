@@ -1,14 +1,31 @@
 server:
-    port: 8081
+  port: 8081  # Puerto donde corre el Config Server
 
 spring:
+  application:
+    name: config-server
   cloud:
     config:
       server:
         git:
-          default-label: gateway
-          uri: https://github.com/NicolasPerezU/microservices-hotel
-          search-paths: config-data
+          uri: https://github.com/NicolasPerezU/microservices-hotel  # Repositorio con las configuraciones
+          search-paths: config-data  # Ruta dentro del repositorio donde están los archivos de configuración
+          default-label: main  # Rama por defecto (ajústala si no es 'main')
+  profiles:
+    active: git  # Indica que usará Git como fuente de configuración
 
-  application:
-    name: config-server
+eureka:
+  client:
+    register-with-eureka: false  # Config Server generalmente no necesita registrarse en Eureka
+    fetch-registry: false
+  instance:
+    hostname: localhost  # Asegura que se acceda localmente
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, env
+  endpoint:
+    health:
+      show-details: always
