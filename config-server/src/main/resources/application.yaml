@@ -8,24 +8,16 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/NicolasPerezU/microservices-hotel  # Repositorio con las configuraciones
-          search-paths: config-data  # Ruta dentro del repositorio donde están los archivos de configuración
-          default-label: main  # Rama por defecto (ajústala si no es 'main')
+          uri: https://github.com/NicolasPerezU/microservices-hotel
+          search-paths: config-data
+          default-label: gateway
   profiles:
-    active: git  # Indica que usará Git como fuente de configuración
+    active: git
 
 eureka:
   client:
-    register-with-eureka: false  # Config Server generalmente no necesita registrarse en Eureka
+    register-with-eureka: false
     fetch-registry: false
   instance:
-    hostname: localhost  # Asegura que se acceda localmente
+    hostname: localhost 
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, env
-  endpoint:
-    health:
-      show-details: always
