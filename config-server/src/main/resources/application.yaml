@@ -2,13 +2,21 @@ server:
     port: 8081
 
 spring:
+  application:
+    name: config-server
   cloud:
     config:
       server:
         git:
-          default-label: circuit-breaker
           uri: https://github.com/NicolasPerezU/microservices-hotel
           search-paths: config-data
+          default-label: circuit-breaker
+  profiles:
+    active: git
 
-  application:
-    name: config-server
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  instance:
+    hostname: localhost
