@@ -188,7 +188,7 @@ public class ReservationServiceIMPL implements ReservationService {
     }
 
     public HotelResponse fallbackHotelById(Long hotelId, Throwable ex) {
-        logger.error("Hotel service unavailable. Fallback activated for ID {}: {}", hotelId, ex.getMessage());
+        logger.error("FALLBACK: Hotel service down. Hotel ID: {}", hotelId);
         return new HotelResponse(-1L, "Service Unavailable", "Service Unavailable", null);
     }
 
@@ -199,15 +199,15 @@ public class ReservationServiceIMPL implements ReservationService {
     }
 
     public RoomResponse fallbackRoomById(Long roomId, Throwable ex) {
-        logger.error("Room service unavailable. Fallback activated for ID {}: {}", roomId, ex.getMessage());
+        logger.error("FALLBACK: Room service down. Room ID: {}", roomId);
         return new RoomResponse(-1L, "Service Unavailable", 0.0, -1L, "Service Unavailable", "Service Unavailable");
     }
 
     private ResponseEntity<String> hotelExist(HotelResponse hotelResponse) {
         if (hotelResponse == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Hotel not found");
-        } else if (hotelResponse.getId() == -1L) { // Indica fallback activado
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Hotel service is down");
+        } else if (hotelResponse.getId() == -1L) { // Circuit Breaker activado
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Hotel service is unavailable");
         }
         return null;
     }
@@ -215,8 +215,8 @@ public class ReservationServiceIMPL implements ReservationService {
     private ResponseEntity<String> roomExist(RoomResponse roomResponse) {
         if (roomResponse == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Room not found");
-        } else if (roomResponse.getId() == -1L) { // Indica fallback activado
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Room service is down");
+        } else if (roomResponse.getId() == -1L) { // Circuit Breaker activado
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Room service is unavailable");
         }
         return null;
     }
