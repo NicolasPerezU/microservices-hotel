@@ -17,17 +17,8 @@ resilience4j.circuitbreaker:
             slidingWindowSize: 10
             permittedNumberOfCallsInHalfOpenState: 3
             slidingWindowType: TIME_BASED
-            minimumNumberOfCalls: 10
-            waitDurationInOpenState: 10s
+            minimumNumberOfCalls: 3
+            waitDurationInOpenState: 5s
             failureRateThreshold: 50
             eventConsumerBufferSize: 10
-        microservice-opinions:
-            registerHealthIndicator: true
-            slidingWindowSize: 10
-            permittedNumberOfCallsInHalfOpenState: 3
-            slidingWindowType: TIME_BASED
-            minimumNumberOfCalls: 10
-            waitDurationInOpenState: 10s
-            failureRateThreshold: 50
-            eventConsumerBufferSize: 10
-            
+        

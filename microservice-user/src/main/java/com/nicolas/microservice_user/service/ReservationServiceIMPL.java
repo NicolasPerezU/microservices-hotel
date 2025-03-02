@@ -10,6 +10,8 @@ import com.nicolas.microservice_user.repository.ReservationRepository;
 import com.nicolas.microservice_user.repository.UserRepository;
 import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -94,7 +96,7 @@ public class ReservationServiceIMPL implements ReservationService {
             );
         }).collect(Collectors.toList());
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Override
@@ -177,14 +179,16 @@ public class ReservationServiceIMPL implements ReservationService {
         return null;
     }
 
+    private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
+
     @CircuitBreaker(name = "microservice-hotel", fallbackMethod = "fallbackHotelById")
     public HotelResponse getHotelByIdWithCircuitBreaker(Long hotelId) {
         return hotelClient.getHotelById(hotelId);
     }
 
-
     public HotelResponse fallbackHotelById(Long hotelId, Throwable ex) {
-        return new HotelResponse(hotelId, "Hotel not found", "City not found", null);
+        logger.error("Error al obtener hotel con ID {}: {}", hotelId, ex.getMessage());
+        return new HotelResponse(hotelId, "Hotel no disponible", "Ciudad no disponible", null);
     }
 
     @CircuitBreaker(name = "microservice-hotel", fallbackMethod = "fallbackRoomById")
@@ -192,11 +196,10 @@ public class ReservationServiceIMPL implements ReservationService {
         return hotelClient.getRoomById(roomId);
     }
 
-
     public RoomResponse fallbackRoomById(Long roomId, Throwable ex) {
-        return new RoomResponse(roomId, "Room not found", 0.0, 0L, "Hotel not found", "City not found");
+        logger.error("Error al obtener habitación con ID {}: {}", roomId, ex.getMessage());
+        return new RoomResponse(roomId, "Habitación no disponible", 0.0, 0L, "Hotel no disponible", "Ciudad no disponible");
     }
-
     //valida si el hotel existe, si no existe retorna un mensaje de error
     private static ResponseEntity<String> hotelExist(HotelResponse hotelResponse) {
         if (hotelResponse == null){
