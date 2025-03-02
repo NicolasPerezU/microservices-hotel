@@ -8,6 +8,7 @@ import com.nicolas.microservice_user.model.HotelResponse;
 import com.nicolas.microservice_user.model.RoomResponse;
 import com.nicolas.microservice_user.repository.ReservationRepository;
 import com.nicolas.microservice_user.repository.UserRepository;
+import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,6 @@ public class ReservationServiceIMPL implements ReservationService {
 
     private final HotelClient hotelClient;
 
-    @Autowired
     public ReservationServiceIMPL(HotelClient hotelClient) {
         this.hotelClient = hotelClient;
     }
@@ -183,7 +183,7 @@ public class ReservationServiceIMPL implements ReservationService {
     }
 
 
-    public HotelResponse fallbackHotelById(Long hotelId, Throwable throwable) {
+    public HotelResponse fallbackHotelById(Long hotelId, Throwable ex) {
         return new HotelResponse(hotelId, "Hotel not found", "City not found", null);
     }
 
@@ -192,7 +192,7 @@ public class ReservationServiceIMPL implements ReservationService {
         return hotelClient.getRoomById(roomId);
     }
 
-    // Método fallback para habitaciones
+
     public RoomResponse fallbackRoomById(Long roomId, Throwable ex) {
         return new RoomResponse(roomId, "Room not found", 0.0, 0L, "Hotel not found", "City not found");
     }
