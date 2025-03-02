@@ -9,3 +9,25 @@ eureka:
             defaultZone: http://localhost:8761/eureka/
         instance:
             hostname: localhost
+
+resilience4j.circuitbreaker:
+    instances:
+        microservice-hotel:
+            registerHealthIndicator: true
+            slidingWindowSize: 10
+            permittedNumberOfCallsInHalfOpenState: 3
+            slidingWindowType: TIME_BASED
+            minimumNumberOfCalls: 20
+            waitDurationInOpenState: 10s
+            failureRateThreshold: 50
+            eventConsumerBufferSize: 10
+        microservice-opinions:
+            registerHealthIndicator: true
+            slidingWindowSize: 10
+            permittedNumberOfCallsInHalfOpenState: 3
+            slidingWindowType: TIME_BASED
+            minimumNumberOfCalls: 20
+            waitDurationInOpenState: 10s
+            failureRateThreshold: 50
+            eventConsumerBufferSize: 10
+            

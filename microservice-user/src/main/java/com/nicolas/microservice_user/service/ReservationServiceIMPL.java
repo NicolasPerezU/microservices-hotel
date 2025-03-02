@@ -8,6 +8,7 @@ import com.nicolas.microservice_user.model.HotelResponse;
 import com.nicolas.microservice_user.model.RoomResponse;
 import com.nicolas.microservice_user.repository.ReservationRepository;
 import com.nicolas.microservice_user.repository.UserRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,12 +43,12 @@ public class ReservationServiceIMPL implements ReservationService {
         if (user != null) return user;
 
         //valida si el hotel existe, si no existe retorna un mensaje de error
-        HotelResponse hotelResponse = hotelClient.getHotelById(request.getHotelId());
+        HotelResponse hotelResponse = getHotelByIdWithCircuitBreaker(request.getHotelId());
         ResponseEntity<String> hotel = hotelExist(hotelResponse);
         if (hotel != null) return hotel;
 
         //valida si la habitación existe, si no existe retorna un mensaje de error
-        RoomResponse roomResponse = hotelClient.getRoomById(request.getRoomId());
+        RoomResponse roomResponse = getRoomByIdWithCircuitBreaker(request.getRoomId());
         ResponseEntity<String> room = roomExist(roomResponse);
         if (room != null) return room;
 
@@ -69,17 +70,16 @@ public class ReservationServiceIMPL implements ReservationService {
 
 
 
-
     @Override
     public ResponseEntity<?> getReservations() {
         List<Reservation> reservations = reservationRepository.findAll();
 
         List<ReservationResponse> response = reservations.stream().map(reservation -> {
 
-            HotelResponse hotel = hotelClient.getHotelById(reservation.getHotelId());
+            HotelResponse hotel = getHotelByIdWithCircuitBreaker(reservation.getHotelId());
 
 
-            RoomResponse room = hotelClient.getRoomById(reservation.getRoomId());
+            RoomResponse room = getRoomByIdWithCircuitBreaker(reservation.getRoomId());
 
             return new ReservationResponse(
                     reservation.getId(),
@@ -106,9 +106,9 @@ public class ReservationServiceIMPL implements ReservationService {
 
         Reservation reservation = reservationRepository.findById(id).get();
 
-        HotelResponse hotel = hotelClient.getHotelById(reservation.getHotelId());
+        HotelResponse hotel = getHotelByIdWithCircuitBreaker(reservation.getHotelId());
 
-        RoomResponse room = hotelClient.getRoomById(reservation.getRoomId());
+        RoomResponse room = getRoomByIdWithCircuitBreaker(reservation.getRoomId());
 
         ReservationResponse response = convertToReservationResponse(reservation, hotel, room);
 
@@ -126,12 +126,12 @@ public class ReservationServiceIMPL implements ReservationService {
         if (user != null) return user;
 
         //valida si el hotel existe, si no existe retorna un mensaje de error
-        HotelResponse hotelResponse = hotelClient.getHotelById(request.getHotelId());
+        HotelResponse hotelResponse = getHotelByIdWithCircuitBreaker(request.getHotelId());
         ResponseEntity<String> hotel = hotelExist(hotelResponse);
         if (hotel != null) return hotel;
 
         //valida si la habitación existe, si no existe retorna un mensaje de error
-        RoomResponse roomResponse = hotelClient.getRoomById(request.getRoomId());
+        RoomResponse roomResponse = getRoomByIdWithCircuitBreaker(request.getRoomId());
         ResponseEntity<String> room = roomExist(roomResponse);
         if (room != null) return room;
 
@@ -175,6 +175,26 @@ public class ReservationServiceIMPL implements ReservationService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
         return null;
+    }
+
+    @CircuitBreaker(name = "microservice-hotel", fallbackMethod = "fallbackHotelById")
+    public HotelResponse getHotelByIdWithCircuitBreaker(Long hotelId) {
+        return hotelClient.getHotelById(hotelId);
+    }
+
+
+    public HotelResponse fallbackHotelById(Long hotelId, Throwable throwable) {
+        return new HotelResponse(hotelId, "Hotel not found", "City not found", null);
+    }
+
+    @CircuitBreaker(name = "microservice-hotel", fallbackMethod = "fallbackRoomById")
+    public RoomResponse getRoomByIdWithCircuitBreaker(Long roomId) {
+        return hotelClient.getRoomById(roomId);
+    }
+
+    // Método fallback para habitaciones
+    public RoomResponse fallbackRoomById(Long roomId, Throwable ex) {
+        return new RoomResponse(roomId, "Room not found", 0.0, 0L, "Hotel not found", "City not found");
     }
 
     //valida si el hotel existe, si no existe retorna un mensaje de error

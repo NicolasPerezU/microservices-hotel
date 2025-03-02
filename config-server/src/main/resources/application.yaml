@@ -6,7 +6,7 @@ spring:
     config:
       server:
         git:
-          default-label: gateway
+          default-label: circuit-breaker
           uri: https://github.com/NicolasPerezU/microservices-hotel
           search-paths: config-data
 
