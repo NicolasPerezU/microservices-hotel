@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -72,7 +74,6 @@ public class ReservationServiceIMPL implements ReservationService {
     }
 
 
-
     @Override
     public ResponseEntity<?> getReservations() {
         List<Reservation> reservations = reservationRepository.findAll();
@@ -80,32 +81,32 @@ public class ReservationServiceIMPL implements ReservationService {
         List<ReservationResponse> response = reservations.stream()
                 .map(reservation -> {
 
-            HotelResponse hotel = getHotelByIdWithCircuitBreaker(reservation.getHotelId());
+                    HotelResponse hotel = getHotelByIdWithCircuitBreaker(reservation.getHotelId());
 
 
-            RoomResponse room = getRoomByIdWithCircuitBreaker(reservation.getRoomId());
+                    RoomResponse room = getRoomByIdWithCircuitBreaker(reservation.getRoomId());
 
-            return new ReservationResponse(
-                    reservation.getId(),
-                    reservation.getUser().getId(),
-                    reservation.getUser().getName(),
-                    hotel.getId(),
-                    hotel.getName(),
-                    hotel.getCity(),
-                    room.getId(),
-                    room.getRoomType(),
-                    room.getPrice()
-            );
-        }).collect(Collectors.toList());
+                    return new ReservationResponse(
+                            reservation.getId(),
+                            reservation.getUser().getId(),
+                            reservation.getUser().getName(),
+                            hotel.getId(),
+                            hotel.getName(),
+                            hotel.getCity(),
+                            room.getId(),
+                            room.getRoomType(),
+                            room.getPrice()
+                    );
+                }).collect(Collectors.toList());
 
         return ResponseEntity.ok(response);
     }
 
-  
+
     @Override
     public ResponseEntity<?> getReservationById(Long id) {
 
-        if (!reservationRepository.existsById(id)){
+        if (!reservationRepository.existsById(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reservation not found");
         }
 
@@ -123,7 +124,7 @@ public class ReservationServiceIMPL implements ReservationService {
     @Override
     public ResponseEntity<?> updateReservation(ReservationRequest request, Long id) {
 
-        if (!reservationRepository.existsById(id)){
+        if (!reservationRepository.existsById(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reservation not found");
         }
         //valida si el usuario existe, si no existe retorna un mensaje de error
@@ -164,7 +165,7 @@ public class ReservationServiceIMPL implements ReservationService {
     @Override
     public ResponseEntity<?> deleteReservation(Long id) {
 
-        if (!reservationRepository.existsById(id)){
+        if (!reservationRepository.existsById(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reservation not found");
         }
 
@@ -176,7 +177,7 @@ public class ReservationServiceIMPL implements ReservationService {
 
     //valida si el usuario existe, si no existe retorna un mensaje de error
     private ResponseEntity<String> userExist(ReservationRequest request) {
-        if (!userRepository.existsById(request.getUserId())){
+        if (!userRepository.existsById(request.getUserId())) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
         return null;
@@ -184,6 +185,7 @@ public class ReservationServiceIMPL implements ReservationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ReservationService.class);
 
+    @Retryable(value = {FeignException.class, java.net.ConnectException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     @CircuitBreaker(name = "microservice-hotel", fallbackMethod = "fallbackHotelById")
     public HotelResponse getHotelByIdWithCircuitBreaker(Long hotelId) {
         return hotelClient.getHotelById(hotelId);

@@ -18,6 +18,7 @@ feign:
   client:
     config:
       default:
+        retryer: feign.Retryer.Default
         connectTimeout: 2000
         readTimeout: 2000
         loggerLevel: basic

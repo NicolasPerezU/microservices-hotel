@@ -11,17 +11,19 @@ eureka:
             hostname: localhost
 
 resilience4j.circuitbreaker:
-    instances:
-        microservice-hotel:
-            registerHealthIndicator: true
-            slidingWindowSize: 10
-            permittedNumberOfCallsInHalfOpenState: 3
-            slidingWindowType: TIME_BASED
-            minimumNumberOfCalls: 3
-            waitDurationInOpenState: 5s
-            failureRateThreshold: 50
-            eventConsumerBufferSize: 10
-            recordExceptions: # Excepciones que activan el Circuit Breaker
-                - feign.RetryableException
-                - java.net.ConnectException
-                - java.io.IOException
+  instances:
+    microservice-hotel:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 3
+      slidingWindowType: TIME_BASED
+      minimumNumberOfCalls: 3
+      waitDurationInOpenState: 5s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+      recordExceptions:
+        - feign.FeignException$ServiceUnavailable
+        - feign.FeignException$InternalServerError
+        - java.net.ConnectException
+        - java.io.IOException
+        - feign.RetryableException
