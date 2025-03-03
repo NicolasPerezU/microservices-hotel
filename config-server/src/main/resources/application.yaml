@@ -10,7 +10,7 @@ spring:
         git:
           uri: https://github.com/NicolasPerezU/microservices-hotel
           search-paths: config-data
-          default-label: circuit-breaker
+          default-label: keycloak
   profiles:
     active: git
 
