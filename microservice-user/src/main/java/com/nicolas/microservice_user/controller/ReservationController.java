@@ -1,5 +1,6 @@
 package com.nicolas.microservice_user.controller;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.nicolas.microservice_user.dto.ReservationRequest;
 import com.nicolas.microservice_user.service.ReservationService;
 import jakarta.validation.Valid;
@@ -26,10 +27,13 @@ public class ReservationController {
         return reservationService.getReservations();
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getReservationById(@PathVariable Long id){
         return reservationService.getReservationById(id);
     }
+
+
 
 
 

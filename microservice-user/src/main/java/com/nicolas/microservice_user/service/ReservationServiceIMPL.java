@@ -1,5 +1,6 @@
 package com.nicolas.microservice_user.service;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.nicolas.microservice_user.client.HotelClient;
 import com.nicolas.microservice_user.entity.Reservation;
 import com.nicolas.microservice_user.dto.ReservationRequest;
@@ -100,6 +101,7 @@ public class ReservationServiceIMPL implements ReservationService {
         return ResponseEntity.ok(response);
     }
 
+  
     @Override
     public ResponseEntity<?> getReservationById(Long id) {
 
