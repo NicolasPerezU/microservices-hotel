@@ -51,3 +51,4 @@ spring:
             client-secret: E7uy4imHtNEJaPSHzSD3sTCLNsLckgpf
             authorization-grant-type: authorization_code
             redirect-uri: http://localhost:8080/login/oauth2/code/client-microservice
+            scope: openid
