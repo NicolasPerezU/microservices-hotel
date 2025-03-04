@@ -36,3 +36,22 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
       register-with-eureka: true
       fetch-registry: true
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/realms/realm
+            authorization-uri: http://localhost:8180/realms/realm/protocol/openid-connect/auth
+            user-info-uri: http://localhost:8180/realms/realm/protocol/openid-connect/userinfo
+            user-name-attribute: preferred_username
+            token-uri: http://localhost:8180/realms/realm/protocol/openid-connect/token
+            jwk-set-uri: http://localhost:8180/realms/realm/protocol/openid-connect/certs
+        registration:
+          client-microservice:
+            provider: keycloak
+            client-id: client-microservice
+            client-secret: E7uy4imHtNEJaPSHzSD3sTCLNsLckgpf
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8080/login/oauth2/code/client-microservice
