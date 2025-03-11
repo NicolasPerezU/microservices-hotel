@@ -68,8 +68,6 @@ public class ReservationServiceIMPL implements ReservationService {
     }
 
 
-
-
     @Override
     public ResponseEntity<?> getReservations() {
         List<Reservation> reservations = reservationRepository.findAll();
